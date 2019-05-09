@@ -1,5 +1,4 @@
-# Face-Recognition-Using-CNN-in-Real-Time-Videos
-
+# Real Time Face Recognition Using CNN
 
 Step 1 Run “01_face_dataset.py”
         -- This will take 200 snaps of the users face and save it in the folder 'dataset'
