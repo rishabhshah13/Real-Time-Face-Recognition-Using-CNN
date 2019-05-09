@@ -1,5 +1,4 @@
 # Face-Recognition-Using-CNN-in-Real-Time-Videos
-Face Recognition Using CNN in Real-Time Videos
 
 
 Step 1 Run “01_face_dataset.py”
