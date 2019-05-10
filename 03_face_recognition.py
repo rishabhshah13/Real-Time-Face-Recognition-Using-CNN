@@ -23,7 +23,11 @@ def getImagesAndLabels():
 
     for imagePath in imagePaths:
 
-        PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+        #if there is an error saving any jpegs
+        try:
+            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+        except:
+            continue  
         img_numpy = np.array(PIL_img,'uint8')
 
         id = int(os.path.split(imagePath)[-1].split(".")[1])
@@ -34,8 +38,7 @@ def getImagesAndLabels():
 
 _,ids = getImagesAndLabels()
 model = model((32,32,1),len(set(ids)))
-#model = model((32,32,1),2)
-model.load_weights  ('Demo.hdf5')
+model.load_weights  ('trained_model.h5')
 model.summary()
 
 cascPath = "haarcascade_frontalface_default.xml"
@@ -78,17 +81,16 @@ def start():
         
         print("\n\n\n\n")
         print("----------------------------------------------")
-        labels = ['George W Bush' ,'Rishabh']
+        #labels = ['George W Bush' ,'Rishabh']
         prediction = prediction.tolist()
-        i = 0
-        for label in labels:
-            #print( label + "==>" + str(prediction[0][i]) )
-            i = i + 1
+        
         listv = prediction[0]
         n = listv.index(max(listv))
         print("\n")
         print("----------------------------------------------")
-        print( "Highest Probability: " + labels[n] + "==>" + str(prediction[0][n]) )
+        #print( "Highest Probability: " + labels[n] + "==>" + str(prediction[0][n]) )
+        print( "Highest Probability: " + "User " + str(n) + "==>" + str(prediction[0][n]) )
+        
         print("----------------------------------------------")
         print("\n")
         for (x, y, w, h) in faces:
@@ -106,46 +108,6 @@ def start():
             break
     cap.release()
     cv2.destroyAllWindows()
-
-        
-
-
-        
-def test():
-    #image = cv2.imread('/home/rishabh/Desktop/face/OpenCV-Face-Recognition-master WORKING/FacialRecognition/dataset/User.1.9.jpg')
-    image = cv2.imread('/home/rishabh/Desktop/George_W_Bush_0001.jpg')
     
-    cv2.imshow('lol',image)
-    cv2.waitKey(0)
-    frame = image
     
-    faces = faceCascade.detectMultiScale(
-    frame,
-    scaleFactor=1.1,
-    minNeighbors=5,
-    minSize=(30, 30),)
-
-    try:
-        (x,y,w,h) = faces[0]
-    except:
-        l = 1
-    #frame = frame[y:y+h,x:x+w]
-    frame = cv2.resize(frame, (32,32))
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    cv2.imshow('lol',gray)
-    cv2.waitKey(0)
-    #frame = np.array(frame).astype(np.float32)        
-    #frame = frame[np.newaxis,:,:]
-    gray = gray.reshape(-1, 32, 32, 1).astype('float32') / 255.
-    print(gray.shape)
-    #gray = gray[np.newaxis,:,:]
-    prediction = model.predict(gray)[0]
-    print(prediction)
-    prediction = np.argmax(model.predict(gray)[0], 1)
-    #prediction = model.predict(gray)[0]
-    #a = np.sum(np.argmax(prediction, 1))
-    #print(a)
-    print(prediction)
-    
-#test()
 start()
