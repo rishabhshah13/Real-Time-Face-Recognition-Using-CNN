@@ -5,7 +5,7 @@ Step 1 Run “01_face_dataset.py”
 
 
 Step 2 Run “02_face_training.py”
-        -- This will train the CNN model and save the weights as 'trained_model.hdf5'
+        -- This will train the CNN model and save the weights as 'trained_model.h5'
 
 
 Step 3 Run “03_face_recognition.py”
