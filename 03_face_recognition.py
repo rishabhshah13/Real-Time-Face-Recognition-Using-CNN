@@ -11,7 +11,7 @@ from keras.layers import Conv2D, MaxPooling2D,Dropout
 from keras.layers import Dense, Activation, Flatten
 from PIL import Image
 from Model import model
-
+import time
 
 
 def getImagesAndLabels():
@@ -41,10 +41,24 @@ model = model((32,32,1),len(set(ids)))
 model.load_weights  ('trained_model.h5')
 model.summary()
 
+# Open the file in read mode
+with open('Dataset/labels.txt', 'r') as file:
+    # Read the entire file content
+    labels = file.read().split('\t')
+
+
+
 cascPath = "haarcascade_frontalface_default.xml"
 faceCascade = cv2.CascadeClassifier(cascPath)
 font = cv2.FONT_HERSHEY_SIMPLEX
 def start():
+
+    # Variables for FPS calculation
+    frame_count = 0
+    start_time = time.time()
+    fps = 0  # Initialize fps variable
+
+
     cap = cv2.VideoCapture(0)
     print('here')
     ret = True
@@ -60,6 +74,20 @@ def start():
         minNeighbors=5,
         minSize=(30, 30))
 
+
+        # Calculate FPS and display it on the image
+        frame_count += 1
+        if frame_count >= 1:  # Calculate FPS every 30 frames (adjust as needed)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            fps = frame_count / elapsed_time
+            print(frame_count, ' /q ' , elapsed_time)
+            frame_count = 0
+            start_time = time.time()
+
+        #Add FPS counter
+        cv2.putText(frame, f"FPS: {fps:.2f}", (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        
         try:
             (x,y,w,h) = faces[0]
         except:
@@ -81,7 +109,7 @@ def start():
         
         print("\n\n\n\n")
         print("----------------------------------------------")
-        #labels = ['George W Bush' ,'Rishabh']
+        # labels = ['Rishabh']
         prediction = prediction.tolist()
         
         listv = prediction[0]
@@ -97,12 +125,13 @@ def start():
             try:
                 cv2.rectangle(nframe, (x, y), (x+w, y+h), (0, 255, 0), 2)
                 cv2.putText(nframe, str(labels[n]), (x+5,y-5), font, 1, (255,255,255), 2)
-                #cv2.putText(nframe, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
+                # cv2.putText(nframe, str(confidence), (x+5,y+h-5), font, 1, (255,255,0), 1)
             except:
                 la = 2 
         prediction = np.argmax(model.predict(gray), 1)
         print(prediction)
         cv2.imshow('result', nframe)
+
         c = cv2.waitKey(1)
         if c & 0xFF == ord('q'):
             break

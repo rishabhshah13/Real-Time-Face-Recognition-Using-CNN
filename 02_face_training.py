@@ -28,7 +28,7 @@ detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
 
 def downsample_image(img):
     img = Image.fromarray(img.astype('uint8'), 'L')
-    img = img.resize((32,32), Image.ANTIALIAS)
+    img = img.resize((32,32), Image.LANCZOS)
     return np.array(img)
 
 
@@ -61,7 +61,7 @@ faces,ids = getImagesAndLabels(path)
 K.clear_session()
 n_faces = len(set(ids))
 model = model((32,32,1),n_faces)
-faces = np.asarray(faces)
+# faces = np.asarray(faces)
 faces = np.array([downsample_image(ab) for ab in faces])
 ids = np.asarray(ids)
 faces = faces[:,:,:,np.newaxis]
@@ -76,7 +76,7 @@ faces /= 255.
 
 x_train, x_test, y_train, y_test = train_test_split(faces,ids, test_size = 0.2, random_state = 0)
 
-checkpoint = callbacks.ModelCheckpoint('trained_model.h5', monitor='val_acc',
+checkpoint = callbacks.ModelCheckpoint('./trained_model.h5',
                                            save_best_only=True, save_weights_only=True, verbose=1)
                                     
 model.fit(x_train, y_train,

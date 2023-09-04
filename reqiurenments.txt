@@ -1,0 +1,10 @@
+opencv-python
+numpy
+keras
+Pillow
+h5py
+dlib
+imutils
+tensorflow
+scikit-learn
+opencv-contrib-python
