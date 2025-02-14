@@ -13,43 +13,41 @@ from PIL import Image
 from Model import model
 import time
 
+sys.path.append('../..')
+from config import *
 
 def getImagesAndLabels():
-    
-    path = 'dataset'
-    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
-    faceSamples=[]
+    imagePaths = [os.path.join(DATASET_PATH, f) for f in os.listdir(DATASET_PATH)]
+    faceSamples = []
     ids = []
 
     for imagePath in imagePaths:
-
-        #if there is an error saving any jpegs
         try:
-            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
+            PIL_img = Image.open(imagePath).convert('L')
         except:
-            continue  
-        img_numpy = np.array(PIL_img,'uint8')
-
+            continue
+        img_numpy = np.array(PIL_img, 'uint8')
         id = int(os.path.split(imagePath)[-1].split(".")[1])
         faceSamples.append(img_numpy)
         ids.append(id)
-    return faceSamples,ids
-    
+    return faceSamples, ids
 
-_,ids = getImagesAndLabels()
-model = model((32,32,1),len(set(ids)))
-model.load_weights  ('trained_model.h5')
+_, ids = getImagesAndLabels()
+model = model(IMAGE_SIZE + (1,), len(set(ids)))
+model.load_weights(MODEL_PATH)
 model.summary()
 
 # Open the file in read mode
-with open('Dataset/labels.txt', 'r') as file:
-    # Read the entire file content
-    labels = file.read().split('\t')
+with open(os.path.join(DATASET_PATH, 'labels.txt'), 'r') as file:
+    labels = file.read().split('\n')
 
 
 
-cascPath = "haarcascade_frontalface_default.xml"
-faceCascade = cv2.CascadeClassifier(cascPath)
+import sys
+sys.path.append('../..')
+from config import *
+
+faceCascade = cv2.CascadeClassifier(FACE_CASCADE_PATH)
 font = cv2.FONT_HERSHEY_SIMPLEX
 def start():
 
@@ -70,9 +68,9 @@ def start():
         nframe = frame
         faces = faceCascade.detectMultiScale(
         frame,
-        scaleFactor=1.1,
-        minNeighbors=5,
-        minSize=(30, 30))
+        scaleFactor=SCALE_FACTOR,
+        minNeighbors=MIN_NEIGHBORS,
+        minSize=MIN_FACE_SIZE)
 
 
         # Calculate FPS and display it on the image

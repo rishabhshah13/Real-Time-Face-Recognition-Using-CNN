@@ -2,16 +2,13 @@ import cv2
 import numpy as np
 from PIL import Image
 import os
-import numpy as np
-import cv2
-import os
 import h5py
 import dlib
 from imutils import face_utils
 from keras.models import load_model
 import sys
 from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D,Dropout
+from keras.layers import Conv2D, MaxPooling2D, Dropout
 from keras.layers import Dense, Activation, Flatten
 from keras.utils import to_categorical
 from keras import backend as K 
@@ -19,41 +16,35 @@ from sklearn.model_selection import train_test_split
 from Model import model
 from keras import callbacks
 
-# Path for face image database
-path = 'dataset'
-
-recognizer = cv2.face.LBPHFaceRecognizer_create()
-detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml");
-
+sys.path.append('../..')
+from config import *
 
 def downsample_image(img):
     img = Image.fromarray(img.astype('uint8'), 'L')
-    img = img.resize((32,32), Image.LANCZOS)
+    img = img.resize(IMAGE_SIZE, Image.LANCZOS)
     return np.array(img)
 
-
-
-# function to get the images and label data
 def getImagesAndLabels(path):
-    
-    path = 'dataset'
-    imagePaths = [os.path.join(path,f) for f in os.listdir(path)]     
-    faceSamples=[]
+    imagePaths = [os.path.join(path, f) for f in os.listdir(path)]
+    faceSamples = []
     ids = []
 
     for imagePath in imagePaths:
-        
-        #if there is an error saving any jpegs
         try:
-            PIL_img = Image.open(imagePath).convert('L') # convert it to grayscale
-        except:
-            continue    
-        img_numpy = np.array(PIL_img,'uint8')
+            PIL_img = Image.open(imagePath).convert('L')
+            img_numpy = np.array(PIL_img, 'uint8')
+            id = int(os.path.split(imagePath)[-1].split(".")[1])
+            faceSamples.append(downsample_image(img_numpy))
+            ids.append(id)
+        except Exception as e:
+            print(f"Error processing {imagePath}: {e}")
+            continue
 
-        id = int(os.path.split(imagePath)[-1].split(".")[1])
-        faceSamples.append(img_numpy)
-        ids.append(id)
-    return faceSamples,ids
+    return np.array(faceSamples), np.array(ids)
+
+recognizer = cv2.face.LBPHFaceRecognizer_create()
+detector = cv2.CascadeClassifier(FACE_CASCADE_PATH);
+
 
 print ("\n [INFO] Training faces now.")
 faces,ids = getImagesAndLabels(path)
@@ -76,12 +67,12 @@ faces /= 255.
 
 x_train, x_test, y_train, y_test = train_test_split(faces,ids, test_size = 0.2, random_state = 0)
 
-checkpoint = callbacks.ModelCheckpoint('./trained_model.h5',
+checkpoint = callbacks.ModelCheckpoint(MODEL_PATH,
                                            save_best_only=True, save_weights_only=True, verbose=1)
                                     
 model.fit(x_train, y_train,
-             batch_size=32,
-             epochs=10,
+             batch_size=BATCH_SIZE,
+             epochs=EPOCHS,
              validation_data=(x_test, y_test),
              shuffle=True,callbacks=[checkpoint])
              

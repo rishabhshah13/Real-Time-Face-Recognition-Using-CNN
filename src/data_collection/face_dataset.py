@@ -1,10 +1,14 @@
 import cv2
 import os
 import time
+import sys
+
+sys.path.append('../..')
+from config import *
+
 cam = cv2.VideoCapture(0)
 
-
-face_detector = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+face_detector = cv2.CascadeClassifier(FACE_CASCADE_PATH)
 
 # For each person, enter one numeric face id
 face_id = input('\n Make sure the first user entered is 0.enter user id end press <return> ==>  ')
@@ -14,12 +18,10 @@ print("\n [INFO] Initializing face capture. Look the camera and wait ...")
 # Initialize individual sampling face count
 count = 0
 
+if not os.path.exists(DATASET_PATH):
+    os.makedirs(DATASET_PATH)
 
-file_path = 'dataset/labels.txt'
-
-if not os.path.exists('dataset'):
-    os.mkdir('dataset')
-
+file_path = os.path.join(DATASET_PATH, 'labels.txt')
 
 # Check if the file exists
 file_exists = os.path.exists(file_path)
@@ -91,5 +93,3 @@ while(True):
 print("\n [INFO] Exiting Program and cleanup stuff")
 cam.release()
 cv2.destroyAllWindows()
-
-
